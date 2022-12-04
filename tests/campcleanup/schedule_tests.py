@@ -17,27 +17,32 @@ class CleanerPairTests(unittest.TestCase):
         second = Cleaner([3, 4, 5])
         pair = CleanerPair(first, second)
 
-        are_overlapping = pair.are_fully_overlapping()
-
-        self.assertEqual(are_overlapping, False)
+        self.assertEqual(pair.are_fully_overlapping(), False)
+        self.assertEqual(pair.are_partially_overlapping(), True)
 
     def test_first_contains_second(self):
         first = Cleaner([2, 3, 4])
         second = Cleaner([3, 4])
         pair = CleanerPair(first, second)
 
-        are_overlapping = pair.are_fully_overlapping()
-
-        self.assertEqual(are_overlapping, True)
+        self.assertEqual(pair.are_fully_overlapping(), True)
+        self.assertEqual(pair.are_partially_overlapping(), True)
 
     def test_second_contains_first(self):
         first = Cleaner([2, 3, 4])
         second = Cleaner([1, 2, 3, 4, 5, 6])
         pair = CleanerPair(first, second)
 
-        are_overlapping = pair.are_fully_overlapping()
+        self.assertEqual(pair.are_fully_overlapping(), True)
+        self.assertEqual(pair.are_partially_overlapping(), True)
 
-        self.assertEqual(are_overlapping, True)
+    def test_are_not_overlapping(self):
+        first = Cleaner([2, 3, 4])
+        second = Cleaner([5, 6, 7])
+        pair = CleanerPair(first, second)
+
+        self.assertEqual(pair.are_fully_overlapping(), False)
+        self.assertEqual(pair.are_partially_overlapping(), False)
 
 
 if __name__ == '__main__':

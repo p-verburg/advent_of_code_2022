@@ -15,6 +15,11 @@ class CleanerPair:
         second = set(self.second.sections)
         return first.issubset(second) or second.issubset(first)
 
+    def are_partially_overlapping(self):
+        first = set(self.first.sections)
+        second = set(self.second.sections)
+        return not first.isdisjoint(second)
+
 
 class CleanupSchedule:
     def __init__(self):
