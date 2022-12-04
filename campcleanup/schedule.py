@@ -10,6 +10,11 @@ class CleanerPair:
         self.first = first_cleaner
         self.second = second_cleaner
 
+    def are_fully_overlapping(self):
+        first = set(self.first.sections)
+        second = set(self.second.sections)
+        return first.issubset(second) or second.issubset(first)
+
 
 class CleanupSchedule:
     def __init__(self):
