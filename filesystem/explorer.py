@@ -11,6 +11,21 @@ class DirectorySmallerThanVisitor:
             self.directories.append(directory)
 
 
+class SmallestDirectoryLargerThanVisitor:
+    def __init__(self, size):
+        self.size = size
+        self.directory = None
+        self.directory_size = None
+
+    def visit(self, directory):
+        directory_size = directory.total_size()
+        if not self.directory \
+                or self.size <= directory_size < self.directory_size:
+            self.directory = directory
+            self.directory_size = directory_size
+            return
+
+
 class Explorer:
     def __init__(self, root=None):
         if not root:
@@ -71,3 +86,9 @@ class Explorer:
         self.root.accept(visitor)
 
         return visitor.directories
+
+    def find_closest_larger_directory(self, size):
+        visitor = SmallestDirectoryLargerThanVisitor(size)
+        self.root.accept(visitor)
+
+        return visitor.directory, visitor.directory_size

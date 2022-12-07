@@ -18,6 +18,15 @@ class ExplorerTests(unittest.TestCase):
 
         self.assertEqual(95437, total_size)
 
+    def test_find_closest_larger_directory(self):
+        root = create_directory_structure()
+        explorer = Explorer(root)
+
+        directory, size = explorer.find_closest_larger_directory(8381165)
+
+        self.assertEqual('d', directory.name)
+        self.assertEqual(24933642, size)
+
     def test_build_filesystem(self):
         explorer = Explorer()
 
