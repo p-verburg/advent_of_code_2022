@@ -3,6 +3,9 @@ class File:
         self.name = name
         self.size = size
 
+    def __str__(self):
+        return self.name + ' (' + self.size + ' bytes)'
+
     def __eq__(self, other):
         return self.name == other.name \
                and self.size == other.size
@@ -14,6 +17,9 @@ class Directory:
         self.parent = parent
         self.subdirectories = []
         self.files = []
+
+    def __str__(self):
+        return self.name + ' (dir)'
 
     def add_subdirectory(self, name):
         subdirectory = Directory(name, self)
