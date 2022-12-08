@@ -8,3 +8,7 @@ tree_map = TreeMap(tree_height_map)
 visible_tree_count = tree_map.count_visible()
 
 print(visible_tree_count)
+
+highest_scenic_score = tree_map.find_highest_scenic_score()
+
+print(highest_scenic_score)
