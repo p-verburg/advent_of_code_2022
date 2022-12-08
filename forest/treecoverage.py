@@ -39,54 +39,41 @@ class TreeMap:
 class VisibilityInspector:
     def __init__(self, tree_map):
         self.grid = tree_map.grid
+        self.row_count = len(self.grid)
+        self.col_count = len(self.grid[0])
+
+    def is_higher(self, row, column, highest):
+        height = self.grid[row][column].height
+        if highest < height:
+            highest = height
+            self.grid[row][column].visible = True
+        return highest
+
+    def look_at_row(self, begin, end, step):
+        for row in range(0, self.row_count):
+            self.grid[row][begin].visible = True
+            highest = self.grid[row][begin].height
+            for col in range(begin + step, end + step, step):
+                highest = self.is_higher(row, col, highest)
+
+    def look_at_column(self, begin, end, step):
+        for col in range(0, self.col_count):
+            self.grid[begin][col].visible = True
+            highest = self.grid[begin][col].height
+            for row in range(begin + step, end + step, step):
+                highest = self.is_higher(row, col, highest)
 
     def look_from_left(self):
-        for row in range(0, len(self.grid)):
-            begin = 0
-            end = len(self.grid[row]) - 1
-            self.grid[row][begin].visible = True
-            highest_left = self.grid[row][begin].height
-            for col in range(begin + 1, end + 1, 1):
-                height = self.grid[row][col].height
-                if highest_left < height:
-                    highest_left = height
-                    self.grid[row][col].visible = True
+        self.look_at_row(0, self.col_count - 1, 1)
 
     def look_from_right(self):
-        for row in range(0, len(self.grid)):
-            begin = 0
-            end = len(self.grid[row]) - 1
-            self.grid[row][end].visible = True
-            highest_right = self.grid[row][end].height
-            for col in range(end - 1, begin - 1, -1):
-                height = self.grid[row][col].height
-                if highest_right < height:
-                    highest_right = height
-                    self.grid[row][col].visible = True
+        self.look_at_row(self.col_count - 1, 0, -1)
 
     def look_from_above(self):
-        for col in range(0, len(self.grid[0])):
-            begin = 0
-            end = len(self.grid) - 1
-            self.grid[begin][col].visible = True
-            highest_above = self.grid[begin][col].height
-            for row in range(begin + 1, end + 1, 1):
-                height = self.grid[row][col].height
-                if highest_above < height:
-                    highest_above = height
-                    self.grid[row][col].visible = True
+        self.look_at_column(0, self.row_count - 1, 1)
 
     def look_from_below(self):
-        for col in range(0, len(self.grid[0])):
-            begin = 0
-            end = len(self.grid) - 1
-            self.grid[end][col].visible = True
-            highest_below = self.grid[end][col].height
-            for row in range(end - 1, begin - 1, -1):
-                height = self.grid[row][col].height
-                if highest_below < height:
-                    highest_below = height
-                    self.grid[row][col].visible = True
+        self.look_at_column(self.row_count - 1, 0, -1)
 
     def inspect(self):
         self.look_from_left()
@@ -101,29 +88,31 @@ class ScenicScorer:
         self.row_count = len(self.grid)
         self.col_count = len(self.grid[0])
 
-    def score_left(self, row, column, height):
-        for c in range(column - 1, -1, -1):
+    def score_along_row(self, row, column, height, edge, direction):
+        for c in range(column + direction, edge + direction, direction):
             if self.grid[row][c].height >= height:
-                return column - c
-        return column
+                return direction * (c - column)
+        return direction * (edge - column)
+
+    def score_along_column(self, row, column, height, edge, direction):
+        for r in range(row + direction, edge + direction, direction):
+            if self.grid[r][column].height >= height:
+                return direction * (r - row)
+        return direction * (edge - row)
+
+    def score_left(self, row, column, height):
+        return self.score_along_row(row, column, height, 0, -1)
 
     def score_right(self, row, column, height):
-        for c in range(column + 1, self.col_count):
-            if self.grid[row][c].height >= height:
-                return c - column
-        return self.col_count - 1 - column
+        return self.score_along_row(row, column, height,
+                                    self.col_count - 1, 1)
 
     def score_up(self, row, column, height):
-        for r in range(row - 1, -1, -1):
-            if self.grid[r][column].height >= height:
-                return row - r
-        return row
+        return self.score_along_column(row, column, height, 0, -1)
 
     def score_down(self, row, column, height):
-        for r in range(row + 1, self.row_count):
-            if self.grid[r][column].height >= height:
-                return r - row
-        return self.row_count - 1 - row
+        return self.score_along_column(row, column, height,
+                                       self.row_count - 1, 1)
 
     def score(self, row, column):
         height = self.grid[row][column].height
