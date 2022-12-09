@@ -1,6 +1,6 @@
 from rope.ropephysics import RopeTracker
 
-rope_tracker = RopeTracker()
+rope_tracker = RopeTracker(10)
 
 with open('moves.txt') as file:
     for line in file:
