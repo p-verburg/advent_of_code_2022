@@ -1,17 +1,5 @@
-class NullSampler:
-    def sample(self, cpu):
-        pass
-
-
-class SignalSampler:
-    def __init__(self, start, interval):
-        self.start = start
-        self.interval = interval
-        self.samples = []
-
-    def sample(self, cpu):
-        if (cpu.cycle - self.start) % self.interval == 0:
-            self.samples.append(cpu.cycle * cpu.X)
+from communication.screen import Screen
+from communication.signalsampler import NullSampler
 
 
 class NoopCommand:
@@ -43,6 +31,7 @@ class Cpu:
         self.cycle = 0
         self.X = 1
         self.sampler = NullSampler()
+        self.screen = Screen(self)
 
     def parse_command(self, instruction):
         words = instruction.split()
@@ -56,5 +45,6 @@ class Cpu:
             while not command.completed:
                 self.cycle += 1
                 self.sampler.sample(self)
+                self.screen.draw_pixel()
                 command.execute(self)
 

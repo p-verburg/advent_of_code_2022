@@ -1,4 +1,5 @@
-from communication.signal import Cpu, SignalSampler
+from communication.cpu import Cpu
+from communication.signalsampler import SignalSampler
 
 cpu = Cpu()
 sampler = SignalSampler(20, 40)

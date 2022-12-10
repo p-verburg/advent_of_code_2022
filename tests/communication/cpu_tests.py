@@ -1,6 +1,7 @@
 import unittest
 
-from communication.signal import NoopCommand, Cpu, AddCommand, SignalSampler
+from communication.cpu import NoopCommand, Cpu, AddCommand
+from communication.signalsampler import SignalSampler
 
 
 class CpuTests(unittest.TestCase):
