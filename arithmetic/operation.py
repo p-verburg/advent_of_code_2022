@@ -19,6 +19,14 @@ class Multiply(Operation):
         return value * self.multiplier
 
 
+class Divide(Operation):
+    def __init__(self, divisor):
+        self.divisor = divisor
+
+    def apply(self, value):
+        return value / self.divisor
+
+
 class Square(Operation):
     def apply(self, value):
         return value * value

@@ -1,6 +1,6 @@
 import unittest
 
-from arithmetic.operation import Add, Multiply, Square
+from arithmetic.operation import Add, Multiply, Square, Divide
 from monkeybusiness.monkeys import Monkey, MonkeyList, Targeter
 
 
@@ -15,8 +15,9 @@ def create_monkey_list():
 
 
 class MonkeyTests(unittest.TestCase):
-    def test_first_round(self):
+    def test_first_round_reduced(self):
         monkeys = create_monkey_list()
+        monkeys.reduce_worry = Divide(3)
 
         for monkey in monkeys:
             monkey.inspect_items()
@@ -31,6 +32,19 @@ class MonkeyTests(unittest.TestCase):
         self.assertEqual(5, monkeys[3].items_inspected)
 
         self.assertEqual(20, monkeys.calculate_business(2))
+
+    def test_first_round_unreduced(self):
+        monkeys = create_monkey_list()
+
+        for monkey in monkeys:
+            monkey.inspect_items()
+
+        self.assertEqual(2, monkeys[0].items_inspected)
+        self.assertEqual(4, monkeys[1].items_inspected)
+        self.assertEqual(3, monkeys[2].items_inspected)
+        self.assertEqual(6, monkeys[3].items_inspected)
+
+        self.assertEqual(24, monkeys.calculate_business(2))
 
 
 if __name__ == '__main__':
