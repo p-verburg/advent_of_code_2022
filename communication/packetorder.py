@@ -51,3 +51,25 @@ def are_in_right_order(left, right):
         return None
 
     raise ValueError('Data of unsupported type')
+
+
+def compare(left, right):
+    result = are_in_right_order(left, right)
+    if result is None:
+        return 0
+    if result:
+        return -1
+    return 1
+
+
+def append_divider_packets(list):
+    list.append([[2]])
+    list.append([[6]])
+
+
+def find_divider_packets(packets):
+    indices = []
+    for i in range(0, len(packets)):
+        if packets[i] == [[2]] or packets[i] == [[6]]:
+            indices.append(i + 1)
+    return indices
