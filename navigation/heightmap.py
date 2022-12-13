@@ -32,7 +32,23 @@ def read_map(path):
         return HeightMap(file)
 
 
-def find_shortest_path(height_map):
+class IsPoint:
+    def __init__(self, point):
+        self.point = point
+
+    def check(self, point, height):
+        return point == self.point
+
+
+class HasHeight:
+    def __init__(self, height):
+        self.height = height
+
+    def check(self, point, height):
+        return height == self.height
+
+
+def find_shortest_path(height_map, destination):
     visited = [height_map.end]
     paths = [[height_map.end]]
     map_size = height_map.width * height_map.height
@@ -55,7 +71,7 @@ def find_shortest_path(height_map):
                 if last_height - next_height <= 1:
                     new_path = path.copy()
                     new_path.append(next_point)
-                    if next_point == height_map.start:
+                    if destination.check(next_point, next_height):
                         return new_path
                     visited.append(next_point)
                     new_paths.append(new_path)
