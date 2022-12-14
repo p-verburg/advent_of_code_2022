@@ -15,6 +15,7 @@ class CaveMap:
         self.left = 0
         self.right = 0
         self.width = 0
+        self.source = Point2D(500, -1)
         self.moves = [Point2D(0, 1), Point2D(-1, 1), Point2D(1, 1)]
 
     def __getitem__(self, item):
@@ -61,6 +62,13 @@ class CaveMap:
             self.set_bounds(self.left - shift, self.right + grow)
             assert(self.width == len(self.rows[0]))
 
+    def create_floor(self):
+        height = len(self.rows)
+        self.extend_to(self.source.x - height - 2,
+                       self.source.x + height + 2)
+        self.rows.append([EMPTY] * self.width)
+        self.rows.append([ROCK] * self.width)
+
     def convert_x(self, x):
         return x - self.left
 
@@ -87,23 +95,23 @@ class CaveMap:
 
     def drop_grain(self):
         result = EMPTY
-        position = Point2D(500, 0)
+        position = self.source
         while result == EMPTY:
             position, result = self.move_grain(position)
-            if result == OUTSIDE:
-                return OUTSIDE
             if result == REST:
                 self.set_terrain(position.x, position.y, REST)
-                return REST
+
+        return position, result
 
     def drop_sand(self):
+        top_position = self.source + Point2D(0, 1)
         grains_dropped = 0
-        result = EMPTY
-        while not result == OUTSIDE:
-            result = self.drop_grain()
+        position = self.source
+        while not position == top_position:
+            position, result = self.drop_grain()
             grains_dropped += 1
 
-        return grains_dropped - 1
+        return grains_dropped
 
 
 def build_map(lines):
@@ -115,6 +123,8 @@ def build_map(lines):
             end = parse_int_point(vertices[i])
             cave_map.add_wall(start, end)
             start = end
+
+    cave_map.create_floor()
 
     return cave_map
 

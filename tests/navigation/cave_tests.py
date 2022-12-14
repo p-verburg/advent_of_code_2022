@@ -10,10 +10,10 @@ class CaveMapTests(unittest.TestCase):
 
         # print_map(cave_map)
 
-        self.assertEqual(494, cave_map.left)
-        self.assertEqual(503, cave_map.right)
-        self.assertEqual(10, cave_map.width)
-        self.assertEqual(10, len(cave_map.rows))
+        self.assertEqual(488, cave_map.left)
+        self.assertEqual(512, cave_map.right)
+        self.assertEqual(25, cave_map.width)
+        self.assertEqual(12, len(cave_map.rows))
 
         self.assertEqual(EMPTY, cave_map.get_terrain(499, 5))
 
@@ -27,7 +27,6 @@ class CaveMapTests(unittest.TestCase):
         self.assertEqual(ROCK, cave_map.get_terrain(502, 7))
         self.assertEqual(ROCK, cave_map.get_terrain(494, 9))
 
-
     def test_drop_sand(self):
         with open('test_cave_map.txt') as file:
             cave_map = build_map(file)
@@ -36,7 +35,7 @@ class CaveMapTests(unittest.TestCase):
 
         print_map(cave_map)
 
-        self.assertEqual(24, grains_resting)
+        self.assertEqual(93, grains_resting)
 
 
 if __name__ == '__main__':
