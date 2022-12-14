@@ -1,5 +1,5 @@
 import unittest
-from geometry.point import Point2D
+from geometry.point import Point2D, parse_int_point
 
 
 class Point2DTests(unittest.TestCase):
@@ -54,6 +54,24 @@ class Point2DTests(unittest.TestCase):
                 point = Point2D(12 * x, 7 * y)
                 unit = point.unit()
                 self.assertEqual(Point2D(x, y), unit)
+
+    def test_length(self):
+        point = Point2D(0, 56)
+
+        self.assertEqual(56, point.length())
+
+        point = Point2D(34, 0)
+
+        self.assertEqual(34, point.length())
+
+        point = Point2D(3, 4)
+
+        self.assertEqual(5, point.length())
+
+    def test_parse_int_point(self):
+        point = parse_int_point("23,45")
+
+        self.assertEqual((23, 45), point)
 
 
 if __name__ == '__main__':

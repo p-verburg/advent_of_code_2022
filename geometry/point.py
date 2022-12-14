@@ -1,3 +1,5 @@
+import math
+
 from numpy import sign
 
 
@@ -27,3 +29,15 @@ class Point2D:
 
     def unit(self):
         return Point2D(sign(self.x), sign(self.y))
+
+    def length(self):
+        if self.x == 0:
+            return self.y
+        if self.y == 0:
+            return self.x
+        return math.sqrt(self.x * self.x + self.y * self.y)
+
+
+def parse_int_point(coordinates_string, separator=","):
+    xy = coordinates_string.split(separator)
+    return Point2D(int(xy[0]), int(xy[1]))
