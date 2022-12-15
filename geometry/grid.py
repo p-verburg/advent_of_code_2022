@@ -48,7 +48,7 @@ class ExtendableGrid:
 
     def extend_horizontal(self, left, right):
         if self.width == 0:
-            width = left - right + 1
+            width = abs(left - right) + 1
             for i in range(0, len(self.rows)):
                 self.rows[i] = [self.blank] * width
             self.set_horizontal_bounds(left, right)
@@ -75,12 +75,12 @@ class ExtendableGrid:
             return
 
         shift = max(self.top - top, 0)
-        if shift > 0:
-            self.rows = [[self.blank] * self.width] * shift + self.rows
+        for _ in range(0, shift):
+            self.rows.insert(0, [self.blank] * self.width)
 
         grow = max(bottom - self.bottom, 0)
-        if grow > 0:
-            self.rows.extend([[self.blank] * self.width] * grow)
+        for _ in range(0, grow):
+            self.rows.append([self.blank] * self.width)
 
         self.set_vertical_bounds(self.top - shift, self.bottom + grow)
 
