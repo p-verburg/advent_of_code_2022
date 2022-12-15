@@ -100,7 +100,7 @@ class ValueEncoder:
 
 
 def print_grid(grid, encoder: ValueEncoder):
-    y = 0
+    y = grid.top
     for row in grid.rows:
         sys.stdout.write(f'{y: >3} ')
 
