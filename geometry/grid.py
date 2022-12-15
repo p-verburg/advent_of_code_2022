@@ -87,7 +87,19 @@ class ExtendableGrid:
         assert(self.height == len(self.rows))
 
 
-def print_grid(grid, encoder):
+class ValueEncoder:
+    def __init__(self, value_map, default):
+        self.value_map = value_map
+        self.default = default
+
+    def get_char(self, value):
+        char = self.value_map[value]
+        if char is None:
+            return self.default
+        return char
+
+
+def print_grid(grid, encoder: ValueEncoder):
     y = 0
     for row in grid.rows:
         sys.stdout.write(f'{y: >3} ')

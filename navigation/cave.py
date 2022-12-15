@@ -1,6 +1,5 @@
-from geometry.grid import print_grid, ExtendableGrid
+from geometry.grid import print_grid, ExtendableGrid, ValueEncoder
 from geometry.point import Point2D, parse_int_point
-
 
 EMPTY = 0
 ROCK = 1
@@ -90,20 +89,13 @@ def build_map(lines):
     return cave_map
 
 
-class TerrainEncoder:
+class TerrainEncoder(ValueEncoder):
     def __init__(self):
-        self.map = {
-            EMPTY : '.',
-            ROCK : '#',
-            SAND : 'o'
-        }
-        self.default = '.'
-
-    def get_char(self, value):
-        char = self.map[value]
-        if char is None:
-            return self.default
-        return char
+        super().__init__({
+            EMPTY: '.',
+            ROCK: '#',
+            SAND: 'o'
+        }, '.')
 
 
 def print_map(cave_map):

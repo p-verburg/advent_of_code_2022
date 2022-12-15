@@ -33,7 +33,7 @@ class CaveMapTests(unittest.TestCase):
 
         grains_resting = cave_map.drop_sand()
 
-        print_map(cave_map)
+        # print_map(cave_map)
 
         self.assertEqual(93, grains_resting)
 
