@@ -1,5 +1,4 @@
-import sys
-
+from geometry.grid import print_grid, ExtendableGrid
 from geometry.point import Point2D, parse_int_point
 
 
@@ -9,22 +8,11 @@ OUTSIDE = 2
 REST = SAND = 3
 
 
-class CaveMap:
+class CaveMap(ExtendableGrid):
     def __init__(self):
-        self.rows = []
-        self.left = 0
-        self.right = 0
-        self.width = 0
+        super().__init__(EMPTY, OUTSIDE)
         self.source = Point2D(500, -1)
         self.moves = [Point2D(0, 1), Point2D(-1, 1), Point2D(1, 1)]
-
-    def __getitem__(self, item):
-        return self.rows[item]
-
-    def set_bounds(self, left, right):
-        self.left = left
-        self.right = right
-        self.width = self.right - self.left + 1
 
     def add_wall(self, start: Point2D, end: Point2D):
         lowest = max(start.y, end.y)
@@ -44,24 +32,6 @@ class CaveMap:
             point += direction
         self.set_terrain(end.x, end.y, ROCK)
 
-    def extend_to(self, left, right):
-        if self.width == 0:
-            width = left - right + 1
-            for i in range(0, len(self.rows)):
-                self.rows[i] = [EMPTY] * width
-            self.set_bounds(left, right)
-            return
-
-        shift = max(self.left - left, 0)
-        grow = max(right - self.right, 0)
-        if shift > 0 or grow > 0:
-            for i in range(0, len(self.rows)):
-                if shift > 0:
-                    self.rows[i] = [EMPTY] * shift + self.rows[i]
-                self.rows[i].extend([EMPTY] * grow)
-            self.set_bounds(self.left - shift, self.right + grow)
-            assert(self.width == len(self.rows[0]))
-
     def create_floor(self):
         height = len(self.rows)
         self.extend_to(self.source.x - height - 2,
@@ -69,20 +39,11 @@ class CaveMap:
         self.rows.append([EMPTY] * self.width)
         self.rows.append([ROCK] * self.width)
 
-    def convert_x(self, x):
-        return x - self.left
-
     def get_terrain(self, x, y):
-        x = self.convert_x(x)
-        if x < 0 or x > self.width - 1:
-            return OUTSIDE
-        if y >= len(self.rows):
-            return OUTSIDE
-        return self.rows[y][x]
+        return self.get_value(x, y)
 
     def set_terrain(self, x, y, terrain):
-        x = self.convert_x(x)
-        self.rows[y][x] = terrain
+        self.set_value(x, y, terrain)
 
     def move_grain(self, position):
         for move in self.moves:
@@ -129,21 +90,21 @@ def build_map(lines):
     return cave_map
 
 
+class TerrainEncoder:
+    def __init__(self):
+        self.map = {
+            EMPTY : '.',
+            ROCK : '#',
+            SAND : 'o'
+        }
+        self.default = '.'
+
+    def get_char(self, value):
+        char = self.map[value]
+        if char is None:
+            return self.default
+        return char
+
+
 def print_map(cave_map):
-    y = 0
-    for row in cave_map.rows:
-        sys.stdout.write(f'{y: >3} ')
-
-        for terrain in row:
-            char = '.'
-            if terrain == EMPTY:
-                char = '.'
-            elif terrain == ROCK:
-                char = '#'
-            elif terrain == SAND:
-                char = 'o'
-
-            sys.stdout.write(char)
-        sys.stdout.write('\n')
-        y += 1
-    sys.stdout.flush()
+    return print_grid(cave_map, TerrainEncoder())
