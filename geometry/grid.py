@@ -9,16 +9,38 @@ class ExtendableGrid:
         self.left = 0
         self.right = 0
         self.width = 0
+        self.top = 0
+        self.bottom = 0
 
     def __getitem__(self, item):
-        return self.rows[item]
+        return self.rows[self.convert_y(item)]
 
     def set_bounds(self, left, right):
         self.left = left
         self.right = right
         self.width = self.right - self.left + 1
 
-    def extend_to(self, left, right):
+    def convert_x(self, x):
+        return x - self.left
+
+    def convert_y(self, y):
+        return y - self.top
+
+    def set_value(self, x, y, value):
+        x = self.convert_x(x)
+        y = self.convert_y(y)
+        self.rows[y][x] = value
+
+    def get_value(self, x, y):
+        x = self.convert_x(x)
+        if x < 0 or x >= self.width:
+            return self.outside
+        y = self.convert_y(y)
+        if y < 0 or y >= len(self.rows):
+            return self.outside
+        return self.rows[y][x]
+
+    def extend_horizontal(self, left, right):
         if self.width == 0:
             width = left - right + 1
             for i in range(0, len(self.rows)):
@@ -34,22 +56,28 @@ class ExtendableGrid:
                     self.rows[i] = [self.blank] * shift + self.rows[i]
                 self.rows[i].extend([self.blank] * grow)
             self.set_bounds(self.left - shift, self.right + grow)
+
             assert(self.width == len(self.rows[0]))
 
-    def convert_x(self, x):
-        return x - self.left
+    def extend_vertical(self, top, bottom, width=0):
+        if len(self.rows) == 0:
+            height = bottom - top + 1
+            self.rows = [[self.blank] * width] * height
+            self.top = top
+            self.bottom = bottom
+            return
 
-    def get_value(self, x, y):
-        x = self.convert_x(x)
-        if x < 0 or x > self.width - 1:
-            return self.outside
-        if y >= len(self.rows):
-            return self.outside
-        return self.rows[y][x]
+        shift = max(self.top - top, 0)
+        if shift > 0:
+            self.rows = [[self.blank] * width] * shift + self.rows
+            self.top = top
 
-    def set_value(self, x, y, value):
-        x = self.convert_x(x)
-        self.rows[y][x] = value
+        grow = max(bottom - self.bottom, 0)
+        if grow > 0:
+            self.rows.extend([[self.blank] * width] * grow)
+            self.bottom = bottom
+
+        assert((self.bottom - self.top + 1) == len(self.rows))
 
 
 def print_grid(grid, encoder):
@@ -62,4 +90,3 @@ def print_grid(grid, encoder):
         sys.stdout.write('\n')
         y += 1
     sys.stdout.flush()
-

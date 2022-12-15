@@ -21,9 +21,9 @@ class CaveMap(ExtendableGrid):
             self.rows.append([EMPTY] * self.width)
 
         if start.x < end.x:
-            self.extend_to(start.x, end.x)
+            self.extend_horizontal(start.x, end.x)
         else:
-            self.extend_to(end.x, start.x)
+            self.extend_horizontal(end.x, start.x)
 
         direction = (end - start).unit()
         point = start
@@ -34,8 +34,8 @@ class CaveMap(ExtendableGrid):
 
     def create_floor(self):
         height = len(self.rows)
-        self.extend_to(self.source.x - height - 2,
-                       self.source.x + height + 2)
+        self.extend_horizontal(self.source.x - height - 2,
+                               self.source.x + height + 2)
         self.rows.append([EMPTY] * self.width)
         self.rows.append([ROCK] * self.width)
 
