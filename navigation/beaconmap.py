@@ -47,8 +47,8 @@ def read_sensors(file):
 
 def construct_map_row(sensor_list, y):
     row = []
-    start_row = 0
-    end_row = 0
+    start_x = 0
+    end_x = 0
     for (sensor, beacon) in sensor_list:
         difference = sensor - beacon
         sensor_range = abs(difference.x) + abs(difference.y)
@@ -57,27 +57,51 @@ def construct_map_row(sensor_list, y):
         if sensor_range >= 0:
             if len(row) == 0:
                 row = [UNKNOWN] * (1 + 2*sensor_range)
-                start_row = sensor.x - sensor_range
-                end_row = sensor.x + sensor_range
+                start_x = sensor.x - sensor_range
+                end_x = sensor.x + sensor_range
             else:
-                shift = start_row - (sensor.x - sensor_range)
+                shift = start_x - (sensor.x - sensor_range)
                 if shift > 0:
                     row = [UNKNOWN] * shift + row
-                    start_row -= shift
-                grow = sensor.x + sensor_range - end_row
+                    start_x -= shift
+                grow = sensor.x + sensor_range - end_x
                 if grow > 0:
                     row.extend([UNKNOWN] * grow)
-                    end_row += grow
+                    end_x += grow
 
             if sensor.y == y:
-                index = sensor.x - start_row
+                index = sensor.x - start_x
                 row[index] = SENSOR
             if beacon.y == y:
-                index = beacon.x - start_row
+                index = beacon.x - start_x
                 row[index] = BEACON
 
             for x in range(sensor.x - sensor_range, sensor.x + sensor_range + 1):
-                index = x - start_row
+                index = x - start_x
+                if row[index] == UNKNOWN:
+                    row[index] = EMPTY
+
+    return start_x, row
+
+
+def construct_row_section(sensor_list, y, min_x, max_x):
+    width = max_x - min_x + 1
+    row = [UNKNOWN] * width
+    for (sensor, beacon, sensor_range) in sensor_list:
+        distance = abs(sensor.y - y)
+        sensor_range -= distance
+        if sensor_range >= 0:
+            if sensor.y == y and min_x <= sensor.x <= max_x:
+                index = sensor.x - min_x
+                row[index] = SENSOR
+            if beacon.y == y and min_x <= beacon.x <= max_x:
+                index = beacon.x - min_x
+                row[index] = BEACON
+
+            start_x = max(min_x, sensor.x - sensor_range)
+            end_x = min(max_x, sensor.x + sensor_range)
+            for x in range(start_x, end_x + 1):
+                index = x - min_x
                 if row[index] == UNKNOWN:
                     row[index] = EMPTY
 
@@ -90,6 +114,28 @@ def count_empty_in_row(row):
         if value == EMPTY:
             count += 1
     return count
+
+
+def calculate_sensor_ranges(sensor_list):
+    sensor_range_list = []
+    for (sensor, beacon) in sensor_list:
+        difference = sensor - beacon
+        sensor_range = abs(difference.x) + abs(difference.y)
+        sensor_range_list.append((sensor, beacon, sensor_range))
+    return sensor_range_list
+
+
+def find_signal(sensor_list, minimum, maximum):
+    locations = []
+
+    sensor_range_list = calculate_sensor_ranges(sensor_list)
+
+    for y in range(minimum, maximum + 1):
+        row = construct_row_section(sensor_range_list, y, minimum, maximum)
+        for x in range(minimum, maximum + 1):
+            if row[x-minimum] == UNKNOWN:
+                locations.append(Point2D(x, y))
+    return locations
 
 
 def read_beacon_map(file):

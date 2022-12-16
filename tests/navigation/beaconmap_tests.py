@@ -1,7 +1,7 @@
 import unittest
 
 from navigation.beaconmap import read_beacon_map, BEACON, SENSOR, print_beacon_map, read_sensors, construct_map_row, \
-    count_empty_in_row
+    count_empty_in_row, find_signal
 
 
 class BeaconMapTests(unittest.TestCase):
@@ -26,11 +26,21 @@ class BeaconMapTests(unittest.TestCase):
         with open('test_beacon_map.txt') as file:
             sensor_list = read_sensors(file)
 
-        row = construct_map_row(sensor_list, 10)
+        _, row = construct_map_row(sensor_list, 10)
 
         count = count_empty_in_row(row)
 
         self.assertEqual(26, count)
+
+    def test_find_signal(self):
+        with open('test_beacon_map.txt') as file:
+            sensor_list = read_sensors(file)
+
+        locations = find_signal(sensor_list, 0, 20)
+
+        self.assertEqual(1, len(locations))
+        self.assertEqual(14, locations[0].x)
+        self.assertEqual(11, locations[0].y)
 
 
 if __name__ == '__main__':
