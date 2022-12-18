@@ -1,4 +1,5 @@
 import sys
+from copy import deepcopy
 
 from geometry.point import Point2D
 
@@ -7,50 +8,48 @@ class Rock:
     def __init__(self, shape):
         self.shape = shape
         self.height = len(self.shape)
-        self.width = max(len(row) for row in self.shape)
-        self.bottom = self.calculate_bottom()
 
-    def calculate_bottom(self):
-        bottom = [self.height] * self.width
-        for y in range(0, self.height):
-            row = self.shape[y]
-            for x in row:
-                if y < bottom[x]:
-                    bottom[x] = y
-        return bottom
 
 class Dash(Rock):
     def __init__(self):
         super().__init__([
-            [0, 1, 2, 3]
+            0b00011110
         ])
 
 
 class Plus(Rock):
     def __init__(self):
         super().__init__([
-            [1], [0, 1, 2], [1]
+            0b00001000,
+            0b00011100,
+            0b00001000,
         ])
 
 
 class Angle(Rock):
     def __init__(self):
         super().__init__([
-            [0, 1, 2], [2], [2]
+            0b00011100,
+            0b00000100,
+            0b00000100,
         ])
 
 
 class Pole(Rock):
     def __init__(self):
         super().__init__([
-            [0], [0], [0], [0]
+            0b00010000,
+            0b00010000,
+            0b00010000,
+            0b00010000
         ])
 
 
 class Square(Rock):
     def __init__(self):
         super().__init__([
-            [0, 1], [0, 1]
+            0b00011000,
+            0b00011000
         ])
 
 
@@ -68,25 +67,20 @@ class Rockfall:
         return next_rock
 
 
-EMPTY = 0
-ROCK = 1
-
-
 class Chamber:
     def __init__(self, jet_pattern):
-        self.width = 7
-        self.space = []
-        self.highest_rock = -1
+        self.space = [0b11111111]
+        self.highest_rock = 0
         self.jet_pattern = jet_pattern
         self.jet_pattern_length = len(self.jet_pattern)
         self.next_jet = 0
 
     def get_rock_height(self):
-        return self.highest_rock + 1
+        return self.highest_rock
 
     def make_space_above(self, height):
         for _ in range(0, height):
-            self.space.append([EMPTY] * self.width)
+            self.space.append(0b10000000)
 
     def get_next_jet(self):
         jet = self.jet_pattern[self.next_jet]
@@ -98,24 +92,21 @@ class Chamber:
     def detect_right_collision(self, rock: Rock, position: Point2D):
         for dy in range(0, rock.height):
             y = position.y + dy
-            x = position.x + rock.shape[dy][-1] + 1
-            if x >= self.width or self.space[y][x] == ROCK:
+            if rock.shape[dy] & 0b00000001 or (rock.shape[dy] >> 1) & self.space[y]:
                 return True
         return False
 
     def detect_left_collision(self, rock: Rock, position: Point2D):
         for dy in range(0, rock.height):
             y = position.y + dy
-            x = position.x + rock.shape[dy][0] - 1
-            if x < 0 or self.space[y][x] == ROCK:
+            if (rock.shape[dy] << 1) & self.space[y]:
                 return True
         return False
 
     def detect_bottom_collision(self, rock: Rock, position: Point2D):
-        for dx in range(0, rock.width):
-            x = position.x + dx
-            y = position.y + rock.bottom[dx] - 1
-            if y < 0 or self.space[y][x] == ROCK:
+        for dy in range(0, rock.height):
+            y = position.y + dy - 1
+            if rock.shape[dy] & self.space[y]:
                 return True
         return False
 
@@ -123,8 +114,13 @@ class Chamber:
         if jet > 0:
             if self.detect_right_collision(rock, position):
                 return position
+            for i in range(0, rock.height):
+                rock.shape[i] = rock.shape[i] >> 1
         elif self.detect_left_collision(rock, position):
             return position
+        else:
+            for i in range(0, rock.height):
+                rock.shape[i] = rock.shape[i] << 1
 
         return position + Point2D(jet, 0)
 
@@ -132,9 +128,7 @@ class Chamber:
         y = None
         for dy in range(0, rock.height):
             y = position.y + dy
-            for dx in rock.shape[dy]:
-                x = position.x + dx
-                self.space[y][x] = ROCK
+            self.space[y] |= rock.shape[dy]
         if y > self.highest_rock:
             self.highest_rock = y
 
@@ -142,6 +136,8 @@ class Chamber:
         empty_space = len(self.space) - self.highest_rock - 1
         required_space = 3 + rock.height - empty_space
         self.make_space_above(required_space)
+
+        rock = deepcopy(rock)
 
         position = Point2D(2, self.highest_rock + 4)
         while True:
@@ -155,14 +151,14 @@ class Chamber:
 
 
 def print_chamber(chamber: Chamber):
-    for row in reversed(chamber.space):
+    for row in reversed(chamber.space[1:]):
         sys.stdout.write('|')
-        for point in row:
-            if point == EMPTY:
-                sys.stdout.write('.')
-            elif point == ROCK:
+        mask = 0b01000000
+        while mask != 0b00000000:
+            if row & mask:
                 sys.stdout.write('#')
             else:
-                sys.stdout.write('?')
+                sys.stdout.write('.')
+            mask = mask >> 1
         sys.stdout.write('|\n')
     print("+-------+")

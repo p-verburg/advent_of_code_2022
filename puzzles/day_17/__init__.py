@@ -1,5 +1,5 @@
 from rockfall.jets import read_jet_pattern
-from rockfall.rocks import Chamber, Rockfall, print_chamber
+from rockfall.bitwise_rocks import Chamber, Rockfall, print_chamber
 
 with open('jet_pattern.txt') as file:
     jet_pattern = read_jet_pattern(file)
@@ -11,4 +11,4 @@ for _ in range(0, 2022):
 
 # print_chamber(chamber)
 
-print(chamber.highest_rock + 1)
+print(chamber.get_rock_height())  # 3211
