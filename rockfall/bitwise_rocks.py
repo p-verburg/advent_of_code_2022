@@ -58,9 +58,11 @@ class Rockfall:
         self.rocks = [Dash(), Plus(), Angle(), Pole(), Square()]
         self.rocks_length = len(self.rocks)
         self.next_rock = 0
+        self.rocks_dropped = 0
 
     def get_next_rock(self):
         next_rock = self.rocks[self.next_rock]
+        self.rocks_dropped += 1
         self.next_rock += 1
         if self.next_rock == self.rocks_length:
             self.next_rock = 0

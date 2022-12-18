@@ -2,6 +2,7 @@ import unittest
 
 from rockfall.jets import read_jet_pattern
 from rockfall.bitwise_rocks import Chamber, Dash, print_chamber, Rockfall
+from rockfall.patterndetection import predict_height
 
 
 class JetsTests(unittest.TestCase):
@@ -77,16 +78,27 @@ class RockfallTests(unittest.TestCase):
 
         self.assertEqual(3068, chamber.get_rock_height())
 
-    def test_lots_of_rockfall_height(self):
+    def test_predict_height(self):
         with open('test_jet_pattern.txt') as file:
             jet_pattern = read_jet_pattern(file)
         chamber = Chamber(jet_pattern)
-        rockfall = Rockfall()
 
-        for _ in range(0, 1000000000000):
-            chamber.drop_rock(rockfall.get_next_rock())
+        min_pattern_height = len(jet_pattern)
 
-        self.assertEqual(1514285714288, chamber.get_rock_height())
+        predicted_height = predict_height(chamber, min_pattern_height, 2022)
+
+        self.assertEqual(3068, predicted_height)
+
+    def test_predict_large_height(self):
+        with open('test_jet_pattern.txt') as file:
+            jet_pattern = read_jet_pattern(file)
+        chamber = Chamber(jet_pattern)
+
+        min_pattern_height = len(jet_pattern)
+
+        predicted_height = predict_height(chamber, min_pattern_height, 1000000000000)
+
+        self.assertEqual(1514285714288, predicted_height)
 
 
 if __name__ == '__main__':
